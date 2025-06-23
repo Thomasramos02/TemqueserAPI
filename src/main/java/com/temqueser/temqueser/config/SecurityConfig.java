@@ -48,8 +48,6 @@ public class SecurityConfig {
         // Todos os headers permitidos (você pode especificar se quiser mais segurança)
         configuration.setAllowedHeaders(Arrays.asList("*"));
 
-        // Permite enviar cookies e autenticação via credenciais
-        configuration.setAllowCredentials(true);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
 

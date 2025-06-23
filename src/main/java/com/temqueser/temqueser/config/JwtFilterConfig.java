@@ -1,4 +1,4 @@
-package com.temqueser.temqueser.config;
+/*package com.temqueser.temqueser.config;
 
 import com.temqueser.temqueser.security.JwtAuthenticationFilter;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
@@ -16,4 +16,4 @@ public class JwtFilterConfig {
 
     }
 
-}
+}*/
