@@ -22,9 +22,16 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     @Autowired
     private ClienteServices clienteServices;
     
-    @Override
+   @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
-        throws ServletException, IOException {
+            throws ServletException, IOException {
+
+        // Liberar requisições OPTIONS (preflight CORS)
+        if ("OPTIONS".equalsIgnoreCase(request.getMethod())) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+
         String authHeader = request.getHeader("Authorization");
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
             String token = authHeader.replace("Bearer ", "");
@@ -32,13 +39,14 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             if (jwtService.isTokenValid(token)) {
                 Claims claims = jwtService.extractClaims(token);
                 Long userId = Long.parseLong(claims.getSubject());
-                //pode setar o usuario logado em uma thread local
+                // Pode setar o usuário logado em uma thread local ou request attribute
                 request.setAttribute("UserId", userId);
-            }else{
+            } else {
                 response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-                return;
+                return; // não chama o filterChain, bloqueia a requisição
             }
         }
         filterChain.doFilter(request, response);
     }
+
 }

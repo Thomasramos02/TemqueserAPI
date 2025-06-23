@@ -1,10 +1,14 @@
 package com.temqueser.temqueser.config;
 
+import com.temqueser.temqueser.security.JwtAuthenticationFilter;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.Customizer;
-import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -14,14 +18,19 @@ import java.util.Arrays;
 @Configuration
 public class SecurityConfig {
 
+    @Autowired
+    private JwtAuthenticationFilter jwtAuthenticationFilter;
+
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
-                .cors(Customizer.withDefaults())
-                .csrf(csrf -> csrf.disable())
-                .authorizeHttpRequests(auth -> auth
-                        .anyRequest().permitAll()
-                );
+            .cors(Customizer.withDefaults()) // ativa o CORS com as configs abaixo
+            .csrf(csrf -> csrf.disable())   // desabilita CSRF (ajuste conforme seu caso)
+            .authorizeHttpRequests(auth -> auth
+                .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()  // liberação prévia para preflight
+                .anyRequest().authenticated()  // todas as outras rotas exigem autenticação JWT
+            )
+            .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class); // registra filtro JWT na cadeia
 
         return http.build();
     }
@@ -30,19 +39,21 @@ public class SecurityConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
 
-        // ✅ Liberar apenas o frontend do Vercel
+        // Libera somente o frontend do Vercel para fazer requisições
         configuration.setAllowedOrigins(Arrays.asList("https://front-end-tem-que-ser.vercel.app"));
 
-        // ✅ Métodos permitidos
+        // Métodos HTTP permitidos
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
 
-        // ✅ Headers permitidos
+        // Todos os headers permitidos (você pode especificar se quiser mais segurança)
         configuration.setAllowedHeaders(Arrays.asList("*"));
 
-        // ✅ Se for usar cookies/sessões, pode manter true
+        // Permite enviar cookies e autenticação via credenciais
         configuration.setAllowCredentials(true);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+
+        // Aplica essa configuração para todas as rotas
         source.registerCorsConfiguration("/**", configuration);
 
         return source;
