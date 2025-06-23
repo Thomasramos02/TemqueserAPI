@@ -1,4 +1,4 @@
-package com.temqueser.temqueser.config;
+/*package com.temqueser.temqueser.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -20,3 +20,4 @@ public class WebConfig {
         };
     }
 }
+*/
