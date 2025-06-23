@@ -2,7 +2,7 @@ FROM eclipse-temurin:21-jdk-jammy
 
 WORKDIR /app
 
-COPY target/temqueser-0.0.1-SNAPSHOT.jar app.jar
+COPY target/temqueser-0.0.1-SNAPSHOT.jar
 
 EXPOSE 8080
 
